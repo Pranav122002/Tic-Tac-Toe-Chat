@@ -1,13 +1,10 @@
 const socket = io();
 
-// let username = document.getElementById("username");
 let message = document.getElementById("message");
 let send_btn = document.getElementById("send");
 let output = document.getElementById("output");
 let actions = document.getElementById("actions");
 let typo = document.getElementById("typo");
-
-
 
 var timeout;
 
@@ -15,8 +12,22 @@ function timeoutFunction() {
   socket.emit("chat:typing", false);
 }
 
+function getParsedTime() {
+  const date = new Date();
+  let hour = date.getHours();
+  hour = (hour < 10 ? "0" : "") + hour;
+  let min = date.getMinutes();
+  min = (min < 10 ? "0" : "") + min;
+  return hour + ":" + min;
+}
+
 let username = prompt("Please enter your username", "");
-if (!username) { username = "Anonymous"; }
+if (!username) {
+  username = "Anonymous";
+}
+
+//Let the socket at the server "know" the value of the username.
+socket.emit("username", username);
 
 // getting previous saved highscore
 var tic_tac_toe_highscore = window.localStorage.getItem(
@@ -28,56 +39,61 @@ if (tic_tac_toe_highscore == undefined) {
   window.localStorage.setItem("tic_tac_toe_highscore", 0);
 }
 
+send_btn.addEventListener("click", function (event) {
+  event.preventDefault();
 
-send_btn.addEventListener("click", function () {
   socket.emit("chat:message", {
     username: username,
     message: message.value,
   });
+
+  document.getElementById("form").reset();
+
+  const element = document.getElementById("chat-container");
+  element.scrollTop = element.scrollHeight + 100;
 });
 
-//When a message is sent by pressing the button, an object with User and Message is printed in console
 console.log({
   username: username,
   message: message.value,
 });
 
 //output the username when the user is typing
-message.addEventListener('keypress',function(){
-
-  
-  
-  socket.emit('chat:typing', username);
-  clearTimeout(timeout)
-  timeout = setTimeout(timeoutFunction, 1000)
- })
+message.addEventListener("keypress", function () {
+  socket.emit("chat:typing", username);
+  clearTimeout(timeout);
+  timeout = setTimeout(timeoutFunction, 1000);
+});
 
 //shows in div output the user with their message in all windows
 socket.on("chat:message", function (data) {
-  
-
-
   actions.innerHTML = ``;
-  let bkg = (username === data.username) ? "white" : "#353839";
-  let position = (username === data.username) ? "right" : "left";
-  output.innerHTML += ` <p class="padd ${position} msg_border " style="background: ` + bkg + `;margin-right: 7px;
-  margin-left: 7px;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;margin-bottom: 5px;"`+` >
-    <strong class="pad">${data.username}</strong> : ${data.message}
+
+  let bkg = username === data.username ? "white" : "#353839";
+  let txtcolor = username === data.username ? "black" : "white";
+  let position = username === data.username ? "right" : "left";
+
+  output.innerHTML +=
+    ` <p class="padd ${position} msg_border " style="background: ` +
+    bkg +
+    `; color: ${txtcolor}; margin-right: 7px;
+  margin-left: 7px;padding-top: 5px;max-width: 70%; padding-bottom: 5px;padding-left: 5px;padding-right: 5px;margin-bottom: 5px;"` +
+    ` ><span style="font-size: xx-small;">${getParsedTime()}</span>
+    <strong style="font-size: small;" class="pad">${data.username}</strong> : ${
+      data.message
+    }
     </p> `;
 });
 
-socket.on('chat:typing', function(data){
+socket.on("chat:typing", function (data) {
   if (data) {
-    typo.innerHTML = '<p><em>' + data + ' is typing ...</em></p>';
+    typo.innerHTML = "<p><em>" + data + " is typing ...</em></p>";
   } else {
-    typo.innerHTML = ''
+    typo.innerHTML = "";
   }
 });
 
-
-
-
-//Variable for the game of the old (X or O symbol)
+//Variable for the (X or O symbol)
 var symbol;
 
 $(function () {
@@ -87,8 +103,8 @@ $(function () {
   socket.on("move.made", function (data) {
     // Make the move
     $("#" + data.position).text(data.symbol);
-    // If the symbol is the same as the player's symbol, we can assume it's their turn.
 
+    // If the symbol is the same as the player's symbol, we can assume it's their turn.
     myTurn = data.symbol !== symbol;
 
     // If the game is still going, display who's turn it is
@@ -101,21 +117,19 @@ $(function () {
       }
       // When the game ends
     } else {
-      
       if (myTurn) {
         // Message for the loser
         $("#messages").text("Game over. You lost !");
         alert("Highscore : " + tic_tac_toe_highscore);
         save_score(tic_tac_toe_highscore);
-       
       } else {
-         // Message for the winner
+        // Message for the winner
         $("#messages").text("Game over. You won !");
         tic_tac_toe_highscore++;
         alert("Highscore : " + tic_tac_toe_highscore);
         save_score(tic_tac_toe_highscore);
       }
-    
+
       // Disable the game board or board
       $(".board button").attr("disabled", true);
     }
@@ -135,21 +149,6 @@ $(function () {
     $("#messages").text("Opponent disconnected.");
     $(".board button").attr("disabled", true);
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
 
 function getBoardState() {
@@ -159,20 +158,10 @@ function getBoardState() {
     obj[$(this).attr("id")] = $(this).text() || "";
   });
   return obj;
-
-
-
-
-
-
-
-
-
 }
 
 function gameTied() {
   var state = getBoardState();
-
   if (
     state.a0 !== "" &&
     state.a1 !== "" &&
@@ -250,19 +239,3 @@ function save_score(score) {
 function display_score() {
   alert("Highscore : " + tic_tac_toe_highscore);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
