@@ -3,6 +3,7 @@ A online multiplayer Tic-Tac-Toe game with Live Chat-box and Highscores.
 
 * Tic-Tac-Toe game and ChatBox is developed using socket.io.
 * Game board is disabled when there is your opponent's turn and again gets enabled when your turn comes.
+* Typing status is visible at top of ChatBox when opponent is typing a message.
 * Highscore gets incremented by 1 when you win a game.
 * Time and Username are available with Chats.
 * App is responsive. It can be played on both pc and mobiles.
