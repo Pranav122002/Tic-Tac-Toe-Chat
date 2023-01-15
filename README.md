@@ -32,6 +32,13 @@ http://localhost:5000/
 * Socket.io
 * jQuery
 
+## Demo images
+<img src="/demo/Screenshot%20(12).png" >
+<img src="/demo/Screenshot%20(14).png" >
+<img src="/demo/Screenshot%20(15).png" >
+<img src="/demo/Screenshot%20(17).png" >
+To view more demo images go to demo folder of this repo
+
 ## jQuery basics
 Using $ as jQuery - catch html elements in order to add attributes / read their values
 $('#abc') - catch html item by id=abc
